@@ -17,7 +17,7 @@ const account2 = {
 };
 
 const account3 = {
-  owner: "John Doe",
+  owner: "Dave Doe",
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
@@ -57,3 +57,37 @@ const inputTransferAmount = document.querySelector(".form__input--amount");
 const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
+
+const displayMovements = (movements) => {
+  containerMovements.innerHTML = ""; //resets everything in the movements div
+
+  movements.forEach((mov, i) => {
+    const type = mov > 0 ? "deposit" : "withdrawal";
+
+    const html = `
+      <div class="movements__row">
+          <div class="movements__type movements__type--${type}">${
+      i + 1
+    } ${type}</div>
+          <div class="movements__value">${mov}</div>
+      </div> 
+    `;
+    containerMovements.insertAdjacentHTML("afterbegin", html);
+  });
+};
+displayMovements(account1.movements);
+
+const createUsernames = (accs) => {
+  accs.forEach((acc) => {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(" ")
+      .map((name) => {
+        return name[0];
+      })
+      .join("");
+  });
+};
+
+createUsernames(accounts);
+console.log(accounts);
