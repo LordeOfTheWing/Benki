@@ -83,10 +83,31 @@ const calcDisplayBalance = (movements) => {
     return acc + cur;
   }, 0);
 
-  labelBalance.textContent = `${balance} EUR`;
+  labelBalance.textContent = `Ksh. ${balance}`;
 };
 
 calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = (movements) => {
+  const incomes = movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `Ksh.${incomes}`;
+
+  const outcomes = movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `Ksh.${Math.abs(outcomes)}`;
+
+  const interest = movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => (deposit * 1.2) / 100)
+    .filter((int,i,arr)=> int >= 1)
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `Ksh.${interest}`;
+};
+
+calcDisplaySummary(account1.movements);
 
 const createUsernames = (accs) => {
   accs.forEach((acc) => {
