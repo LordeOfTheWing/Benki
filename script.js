@@ -75,39 +75,32 @@ const displayMovements = (movements) => {
     containerMovements.insertAdjacentHTML("afterbegin", html);
   });
 };
-displayMovements(account1.movements);
-
 //calculates and displays balance
-const calcDisplayBalance = (movements) => {
-  const balance = movements.reduce((acc, cur) => {
+const calcDisplayBalance = (acc) => {
+  acc.balance = acc.movements.reduce((acc, cur) => {
     return acc + cur;
   }, 0);
-
-  labelBalance.textContent = `Ksh. ${balance}`;
+  labelBalance.textContent = `KES. ${acc.balance}`;
 };
 
-calcDisplayBalance(account1.movements);
-
-const calcDisplaySummary = (movements) => {
-  const incomes = movements
+const calcDisplaySummary = (acc) => {
+  const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `Ksh.${incomes}`;
+  labelSumIn.textContent = `KES.${incomes}`;
 
-  const outcomes = movements
+  const outcomes = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `Ksh.${Math.abs(outcomes)}`;
+  labelSumOut.textContent = `KES.${Math.abs(outcomes)}`;
 
-  const interest = movements
+  const interest = acc.movements
     .filter((mov) => mov > 0)
-    .map((deposit) => (deposit * 1.2) / 100)
-    .filter((int,i,arr)=> int >= 1)
+    .map((deposit) => (deposit * acc.interestRate) / 100)
+    .filter((int, i, arr) => int >= 1)
     .reduce((acc, int) => acc + int, 0);
-  labelSumInterest.textContent = `Ksh.${interest}`;
+  labelSumInterest.textContent = `KES.${interest}`;
 };
-
-calcDisplaySummary(account1.movements);
 
 const createUsernames = (accs) => {
   accs.forEach((acc) => {
@@ -122,3 +115,72 @@ const createUsernames = (accs) => {
 };
 
 createUsernames(accounts);
+
+const updateUI = function (acc) {
+  //Display Movements
+  displayMovements(acc.movements);
+
+  //Display the account balance
+
+  calcDisplayBalance(acc);
+
+  //Display the summary
+  calcDisplaySummary(acc);
+};
+
+//Event Handlers
+let currentAccount;
+
+btnLogin.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value
+  );
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(" ")[0] //welcome message
+    }`;
+    containerApp.style.opacity = "1";
+    //clearing the input fields
+    inputLoginUsername.value = "";
+    inputLoginPin.value = "";
+
+    inputLoginPin.blur();
+
+    updateUI(currentAccount);
+  }
+});
+
+//Transferring of funds from one account to another
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+
+  inputTransferAmount.value = inputTransferTo.value = "";
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAccount &&
+    receiverAccount?.username !== currentAccount.username
+  ) {
+    //actual transfer of funds
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+
+    updateUI(currentAccount);
+    console.log("Transaction Successful");
+  } else {
+    console.log("Transaction Failed!!");
+  }
+});
+
+btnClose.addEventListener('click', function(e){
+  e.preventDefault();
+
+
+})
